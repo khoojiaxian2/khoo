@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG Giveaway - Free UC 代币</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0c0c0c;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        header {
+            background-color: #121212;
+            color: #f0a500;
+            padding: 20px;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        nav {
+            background-color: #222;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        nav a {
+            color: #f0a500;
+            text-decoration: none;
+            font-size: 1.1em;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ff4500;
+        }
+
+        /* Background Section with Particle Effect */
+        .giveaway-info {
+            background: url('https://example.com/pubg-giveaway-background.jpg') no-repeat center center;
+            background-size: cover;
+            height: 450px;
+            color: white;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        .giveaway-info h2 {
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .countdown {
+            font-size: 1.5em;
+            color: #f0a500;
+            margin-top: 20px;
+        }
+
+        /* Prize Cards Section */
+        .prizes {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 40px;
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        .prize-card {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            width: 250px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .prize-card img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .prize-card h3 {
+            margin-top: 15px;
+            font-size: 1.5em;
+            color: #f0a500;
+        }
+
+        .prize-card:hover {
+            transform: scale(1.05);
+        }
+
+        /* Entry Form Section */
+        .entry-section {
+            background-color: #121212;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .entry-section input {
+            padding: 10px;
+            font-size: 1.1em;
+            width: 300px;
+            margin: 10px 0;
+        }
+
+        .entry-section button {
+            padding: 15px 30px;
+            font-size: 1.3em;
+            background-color: #f0a500;
+            border: none;
+            cursor: pointer;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .entry-section button:hover {
+            background-color: #ff4500;
+        }
+
+        .entry-section button:active {
+            top: 2px;
+        }
+
+        /* Footer Section */
+        footer {
+            background-color: #121212;
+            color: #ccc;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Countdown Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        PUBG Giveaway - Free UC 代币
+    </header>
+
+    <nav>
+        <a href="#">首页</a>
+        <a href="#">活动详情</a>
+        <a href="#">奖品展示</a>
+        <a href="#">参与方式</a>
+        <a href="#">联系我们</a>
+    </nav>
+
+    <!-- Giveaway Info Section -->
+    <div class="giveaway-info">
+        <h2>赢取免费的 PUBG UC 代币！</h2>
+        <p>参与我们的PUBG赠品活动，赢得免费UC代币和独家奖励！</p>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <!-- Prizes Section -->
+    <div class="prizes">
+        <div class="prize-card">
+            <img src="https://example.com/uc-token.jpg" alt="UC Token">
+            <h3>免费 UC 代币</h3>
+            <p>获取 PUBG 游戏内货币，购买你喜欢的皮肤、道具！</p>
+        </div>
+        <div class="prize-card">
+            <img src="https://example.com/battle-pass.jpg" alt="Battle Pass">
+            <h3>战斗通行证</h3>
+            <p>解锁独家战斗通行证，获得丰厚奖励！</p>
+        </div>
+        <div class="prize-card">
+            <img src="https://example.com/weapon-skin.jpg" alt="Weapon Skin">
+            <h3>枪械皮肤</h3>
+            <p>为你的武器装备专属皮肤，提升游戏体验！</p>
+        </div>
+    </div>
+
+    <!-- Entry Section -->
+    <div class="entry-section">
+        <h2>立即参与并赢取奖品！</h2>
+        <input type="email" placeholder="输入你的邮箱" id="email" required>
+        <button onclick="submitEntry()">立即参与</button>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        &copy; 2025 PUBG Giveaway. All Rights Reserved.
+    </footer>
+
+    <script>
+        // Countdown timer
+        const countdownDate = new Date("Apr 1, 2025 00:00:00").getTime();
+        const countdown = document.getElementById("countdown");
+
+        const timer = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = countdownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            countdown.innerHTML = `${days}天 ${hours}小时 ${minutes}分钟 ${seconds}秒`;
+
+            if (distance < 0) {
+                clearInterval(timer);
+                countdown.innerHTML = "活动结束";
+            }
+        }, 1000);
+
+        // Submit entry function
+        function submitEntry() {
+            const email = document.getElementById("email").value;
+            if (email) {
+                alert("感谢你的参与！我们已经记录了你的邮箱。");
+            } else {
+                alert("请输入有效的邮箱！");
+            }
+        }
+    </script>
+
+</body>
+</html>
