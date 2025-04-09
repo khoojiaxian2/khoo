@@ -1,83 +1,183 @@
-import pygame
-from map import Map, TILE_SIZE
-from player import Player, PLAYER_SIZE
-from resources import ResourceManager
-from building import BuildingManager
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Kingdom (HTML)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f0e68c; } /* 淡黄色背景 */
+        canvas { display: block; background-color: #a9d18e; /* 浅绿色画布背景 */ }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <p>木材: <span id="woodCount">0</span></p>
+        <p>石头: <span id="stoneCount">0</span></p>
+        <button onclick="buildHouse()">建造房屋</button>
+        <button onclick="buildStorage()">建造仓库</button>
+    </div>
 
-# 初始化 Pygame
-pygame.init()
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ui = document.getElementById('ui');
+        const woodCountDisplay = document.getElementById('woodCount');
+        const stoneCountDisplay = document.getElementById('stoneCount');
 
-# 游戏窗口尺寸
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Simple Kingdom")
+        const TILE_SIZE = 32;
+        const GRID_WIDTH = 20;
+        const GRID_HEIGHT = 15;
+        canvas.width = GRID_WIDTH * TILE_SIZE;
+        canvas.height = GRID_HEIGHT * TILE_SIZE;
 
-# 加载地图
-game_map = Map('map.txt')
+        let playerX = TILE_SIZE;
+        let playerY = TILE_SIZE;
+        const PLAYER_SIZE = TILE_SIZE;
+        const PLAYER_SPEED = 5;
 
-# 创建玩家
-player = Player(100, 100)
-player_group = pygame.sprite.GroupSingle(player)
+        let wood = 0;
+        let stone = 0;
+        let buildings = [];
 
-# 创建资源管理器
-resource_manager = ResourceManager()
+        // 简单的地图数据 (0: 草地, 1: 树木, 2: 石头)
+        let map = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(0));
+        // 随机放置一些树木和石头
+        for (let i = 0; i < 20; i++) {
+            const x = Math.floor(Math.random() * GRID_WIDTH);
+            const y = Math.floor(Math.random() * GRID_HEIGHT);
+            map[y][x] = 1; // 树木
+        }
+        for (let i = 0; i < 15; i++) {
+            const x = Math.floor(Math.random() * GRID_WIDTH);
+            const y = Math.floor(Math.random() * GRID_HEIGHT);
+            if (map[y][x] === 0) {
+                map[y][x] = 2; // 石头
+            }
+        }
 
-# 创建建筑管理器
-building_manager = BuildingManager()
+        function drawTile(x, y, type) {
+            switch (type) {
+                case 0: // 草地
+                    ctx.fillStyle = '#a9d18e';
+                    ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    break;
+                case 1: // 树木
+                    ctx.fillStyle = 'green';
+                    ctx.fillRect(x * TILE_SIZE + 8, y * TILE_SIZE + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+                    break;
+                case 2: // 石头
+                    ctx.fillStyle = 'gray';
+                    ctx.fillRect(x * TILE_SIZE + 10, y * TILE_SIZE + 10, TILE_SIZE - 20, TILE_SIZE - 20);
+                    break;
+                case 'house':
+                    ctx.fillStyle = 'brown';
+                    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                    break;
+                case 'storage':
+                    ctx.fillStyle = 'darkgray';
+                    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                    break;
+            }
+        }
 
-# 游戏循环
-running = True
-while running:
-    # 事件处理
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player.move(-1, 0)
-            elif event.key == pygame.K_RIGHT:
-                player.move(1, 0)
-            elif event.key == pygame.K_UP:
-                player.move(0, -1)
-            elif event.key == pygame.K_DOWN:
-                player.move(0, 1)
-            elif event.key == pygame.K_SPACE:
-                # 模拟收集资源 (临时实现)
-                resource_manager.collect('wood', 10)
-                print(f"收集了 10 木材，当前资源：{resource_manager.get_resources()}")
-            elif event.key == pygame.K_b:
-                # 模拟建造房屋 (临时实现，放置在玩家当前位置)
-                building_manager.build('house', player.rect.x, player.rect.y)
-            elif event.key == pygame.K_s:
-                # 模拟建造仓库
-                building_manager.build('storage', player.rect.x + 50, player.rect.y)
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT and player.vx < 0:
-                player.stop()
-            if event.key == pygame.K_RIGHT and player.vx > 0:
-                player.stop()
-            if event.key == pygame.K_UP and player.vy < 0:
-                player.stop()
-            if event.key == pygame.K_DOWN and player.vy > 0:
-                player.stop()
+        function drawMap() {
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    drawTile(x, y, map[y][x]);
+                }
+            }
+            buildings.forEach(building => {
+                drawTile(building.x, building.y, building.type);
+            });
+        }
 
-    # 更新游戏状态
-    player_group.update()
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+        }
 
-    # 绘制游戏
-    screen.fill((0, 100, 0)) # 设置背景颜色
-    game_map.draw(screen)
-    player_group.draw(screen)
-    building_manager.draw(screen)
+        function updateUI() {
+            woodCountDisplay.textContent = wood;
+            stoneCountDisplay.textContent = stone;
+        }
 
-    # 显示资源 (临时显示在屏幕顶部)
-    font = pygame.font.Font(None, 30)
-    resources_text = font.render(f"木材: {resource_manager.wood}, 石头: {resource_manager.stone}", True, (255, 255, 255))
-    screen.blit(resources_text, (10, 10))
+        function collectResource(resourceType) {
+            const gridX = Math.floor(playerX / TILE_SIZE);
+            const gridY = Math.floor(playerY / TILE_SIZE);
+            if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
+                if (resourceType === 'wood' && map[gridY][gridX] === 1) {
+                    wood++;
+                    map[gridY][gridX] = 0; // 移除树木
+                    updateUI();
+                } else if (resourceType === 'stone' && map[gridY][gridX] === 2) {
+                    stone++;
+                    map[gridY][gridX] = 0; // 移除石头
+                    updateUI();
+                }
+            }
+        }
 
-    # 更新屏幕
-    pygame.display.flip()
+        function buildHouse() {
+            if (wood >= 10) {
+                buildings.push({ type: 'house', x: playerX, y: playerY });
+                wood -= 10;
+                updateUI();
+            } else {
+                alert("需要 10 木材才能建造房屋！");
+            }
+        }
 
-# 退出 Pygame
-pygame.quit()
+        function buildStorage() {
+            if (stone >= 15) {
+                buildings.push({ type: 'storage', x: playerX, y: playerY });
+                stone -= 15;
+                updateUI();
+            } else {
+                alert("需要 15 石头才能建造仓库！");
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMap();
+            drawPlayer();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.addEventListener('keydown', (event) => {
+            switch (event.key) {
+                case 'ArrowLeft':
+                    playerX = Math.max(0, playerX - PLAYER_SPEED);
+                    break;
+                case 'ArrowRight':
+                    playerX = Math.min(canvas.width - PLAYER_SIZE, playerX + PLAYER_SPEED);
+                    break;
+                case 'ArrowUp':
+                    playerY = Math.max(0, playerY - PLAYER_SPEED);
+                    break;
+                case 'ArrowDown':
+                    playerY = Math.min(canvas.height - PLAYER_SIZE, playerY + PLAYER_SPEED);
+                    break;
+                case ' ': // 空格键用于收集资源
+                    const gridX = Math.floor(playerX / TILE_SIZE);
+                    const gridY = Math.floor(playerY / TILE_SIZE);
+                    if (map[gridY][gridX] === 1) {
+                        collectResource('wood');
+                    } else if (map[gridY][gridX] === 2) {
+                        collectResource('stone');
+                    }
+                    break;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
