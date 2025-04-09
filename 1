@@ -1,0 +1,83 @@
+import pygame
+from map import Map, TILE_SIZE
+from player import Player, PLAYER_SIZE
+from resources import ResourceManager
+from building import BuildingManager
+
+# 初始化 Pygame
+pygame.init()
+
+# 游戏窗口尺寸
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Simple Kingdom")
+
+# 加载地图
+game_map = Map('map.txt')
+
+# 创建玩家
+player = Player(100, 100)
+player_group = pygame.sprite.GroupSingle(player)
+
+# 创建资源管理器
+resource_manager = ResourceManager()
+
+# 创建建筑管理器
+building_manager = BuildingManager()
+
+# 游戏循环
+running = True
+while running:
+    # 事件处理
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player.move(-1, 0)
+            elif event.key == pygame.K_RIGHT:
+                player.move(1, 0)
+            elif event.key == pygame.K_UP:
+                player.move(0, -1)
+            elif event.key == pygame.K_DOWN:
+                player.move(0, 1)
+            elif event.key == pygame.K_SPACE:
+                # 模拟收集资源 (临时实现)
+                resource_manager.collect('wood', 10)
+                print(f"收集了 10 木材，当前资源：{resource_manager.get_resources()}")
+            elif event.key == pygame.K_b:
+                # 模拟建造房屋 (临时实现，放置在玩家当前位置)
+                building_manager.build('house', player.rect.x, player.rect.y)
+            elif event.key == pygame.K_s:
+                # 模拟建造仓库
+                building_manager.build('storage', player.rect.x + 50, player.rect.y)
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT and player.vx < 0:
+                player.stop()
+            if event.key == pygame.K_RIGHT and player.vx > 0:
+                player.stop()
+            if event.key == pygame.K_UP and player.vy < 0:
+                player.stop()
+            if event.key == pygame.K_DOWN and player.vy > 0:
+                player.stop()
+
+    # 更新游戏状态
+    player_group.update()
+
+    # 绘制游戏
+    screen.fill((0, 100, 0)) # 设置背景颜色
+    game_map.draw(screen)
+    player_group.draw(screen)
+    building_manager.draw(screen)
+
+    # 显示资源 (临时显示在屏幕顶部)
+    font = pygame.font.Font(None, 30)
+    resources_text = font.render(f"木材: {resource_manager.wood}, 石头: {resource_manager.stone}", True, (255, 255, 255))
+    screen.blit(resources_text, (10, 10))
+
+    # 更新屏幕
+    pygame.display.flip()
+
+# 退出 Pygame
+pygame.quit()
